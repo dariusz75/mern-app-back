@@ -1,3 +1,5 @@
+const uuid = require('uuid').v4;
+
 const HttpError = require('../models/http-error');
 
 const DUMMY_PLACES = [
@@ -44,5 +46,22 @@ const getPlaceByUserId = (request, response, next) => {
   }
 };
 
+const createPlace = (request, response, next) => {
+  const { title, description, coordinates, address, creator } = request.body;
+  const createdPlace = {
+    id: uuid(),
+    title: title,
+    description: description,
+    location: coordinates,
+    address: address,
+    creator: creator,
+  };
+
+  DUMMY_PLACES.push(createdPlace);
+
+  response.status(200).json({ place: createdPlace });
+};
+
 exports.getPlaceById = getPlaceById;
 exports.getPlaceByUserId = getPlaceByUserId;
+exports.createPlace = createPlace;
