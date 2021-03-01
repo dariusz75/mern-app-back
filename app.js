@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const placesRoutes = require('./routes/places-routes');
 const usersRoutes = require('./routes/users-routes');
@@ -26,4 +27,21 @@ app.use((error, request, response, next) => {
   }
 });
 
-app.listen(5000);
+const connectUrl =
+  'mongodb+srv://Dariusz-Max:kalmar77@cluster0.zguae.mongodb.net/places?retryWrites=true&w=majority';
+
+const connectConfig = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+};
+
+mongoose
+  .connect(connectUrl, connectConfig)
+  .then(() => {
+    console.log('Database connected.');
+    app.listen(5000);
+  })
+  .catch((error) => {
+    console.error('Error connecting to db:', error);
+  });
