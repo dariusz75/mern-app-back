@@ -5,9 +5,9 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
   name: { type: String, required: true },
-  email: { type: String, required: true, unique },
-  password: { type: String, required: true, unique, minlength: 6 },
-  image: { type: String, required: true, unique },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true, unique: true, minlength: 6 },
+  image: { type: String, required: true, unique: true },
   places: { type: String, required: true },
 });
 

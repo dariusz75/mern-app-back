@@ -2,6 +2,7 @@ const uuid = require('uuid').v4;
 const { validationResult } = require('express-validator');
 
 const HttpError = require('../models/http-error');
+const User = require('../models/user');
 
 let DUMMY_USERS = [
   {
@@ -16,7 +17,7 @@ const getUsers = (request, response, next) => {
   response.json({ users: DUMMY_USERS });
 };
 
-const signup = (request, response, next) => {
+const signup = async (request, response, next) => {
   const errors = validationResult(request);
 
   if (!errors.isEmpty()) {
@@ -26,25 +27,38 @@ const signup = (request, response, next) => {
     );
     next(error);
   }
-  const { name, email, password } = request.body;
+  const { name, email, password, places } = request.body;
 
-  const isUser = DUMMY_USERS.find((user) => user.email === email);
-
-  if (isUser) {
-    const error = new HttpError('User already exists', 422);
-    next(error);
+  let existingUser;
+  try {
+    existingUser = await User.findOne({ email: email });
+  } catch (err) {
+    const error = new HttpError('Signing up failed', 500);
+    return next(error);
   }
 
-  const createdUser = {
-    id: uuid(),
+  if (existingUser) {
+    const error = new HttpError('User exists already, please login', 422);
+    return next(error);
+  }
+
+  const createdUser = new User({
     name: name,
     email: email,
+    image:
+      'https://avatars.githubusercontent.com/u/12503580?s=400&u=bf93f8321c93cc6ba143903a7c0ee53cdaefb5f7&v=4',
     password: password,
-  };
+    places: places,
+  });
 
-  DUMMY_USERS.push(createdUser);
+  try {
+    await createdUser.save();
+  } catch (err) {
+    const error = new HttpError('Signing up failed', 500);
+    return next(error);
+  }
 
-  response.status(201).json({ user: createdUser });
+  response.status(201).json({ user: createdUser.toObject({ getters: true }) });
 };
 
 const login = (request, response, next) => {
