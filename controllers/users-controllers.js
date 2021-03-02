@@ -61,20 +61,24 @@ const signup = async (request, response, next) => {
   response.status(201).json({ user: createdUser.toObject({ getters: true }) });
 };
 
-const login = (request, response, next) => {
+const login = async (request, response, next) => {
   const { email, password } = request.body;
 
-  const identifiedUser = DUMMY_USERS.find((user) => user.email === email);
+  let existingUser;
 
-  if (identifiedUser && identifiedUser.password === password) {
-    response.json({ message: 'Logged in!' });
-  } else {
-    const error = new HttpError(
-      'Could not identify User, please check the credentials',
-      401
-    );
-    next(error);
+  try {
+    existingUser = await User.findOne({ email: email });
+  } catch (err) {
+    const error = new HttpError('Logging in failed', 500);
+    return next(error);
   }
+
+  if (!existingUser || existingUser.password !== password) {
+    const error = new HttpError('Incorrect credentials', 401);
+    return next(error);
+  }
+
+  response.json({ message: 'Logged in!' });
 };
 
 exports.getUsers = getUsers;
