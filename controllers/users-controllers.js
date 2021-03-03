@@ -13,8 +13,18 @@ let DUMMY_USERS = [
   },
 ];
 
-const getUsers = (request, response, next) => {
-  response.json({ users: DUMMY_USERS });
+const getUsers = async (request, response, next) => {
+  let users;
+
+  try {
+    users = await User.find({}, '-password');
+  } catch (err) {
+    const error = new HttpError('Getting Users failed', 500);
+    return next(error);
+  }
+  response.json({
+    users: users.map((user) => user.toObject({ getters: true })),
+  });
 };
 
 const signup = async (request, response, next) => {
@@ -25,15 +35,15 @@ const signup = async (request, response, next) => {
       'Invalid inputs passed, please check your data',
       422
     );
-    next(error);
+    return next(error);
   }
-  const { name, email, password, places } = request.body;
+  const { name, email, password } = request.body;
 
   let existingUser;
   try {
     existingUser = await User.findOne({ email: email });
   } catch (err) {
-    const error = new HttpError('Signing up failed', 500);
+    const error = new HttpError('Signing up failed 1', 500);
     return next(error);
   }
 
@@ -43,18 +53,18 @@ const signup = async (request, response, next) => {
   }
 
   const createdUser = new User({
-    name: name,
-    email: email,
+    name,
+    email,
     image:
       'https://avatars.githubusercontent.com/u/12503580?s=400&u=bf93f8321c93cc6ba143903a7c0ee53cdaefb5f7&v=4',
-    password: password,
-    places: places,
+    password,
+    places: [],
   });
 
   try {
     await createdUser.save();
   } catch (err) {
-    const error = new HttpError('Signing up failed', 500);
+    const error = new HttpError('Signing up failed 2', 500);
     return next(error);
   }
 
