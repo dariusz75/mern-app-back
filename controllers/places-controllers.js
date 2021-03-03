@@ -42,16 +42,17 @@ const getPlaceById = async (request, response, next) => {
 const getPlacesByUserId = async (request, response, next) => {
   const userId = request.params.uid;
 
-  let places;
+  //let places;
+  let userWithPlaces;
 
   try {
-    places = await Place.find({ creator: userId });
+    userWithPlaces = await User.findById(userId).populate('places');
   } catch (err) {
     const error = new HttpError('Could not find the requested places', 500);
     return next(error);
   }
 
-  if (!places || places.length === 0) {
+  if (!userWithPlaces || userWithPlaces.places.length === 0) {
     const error = new HttpError(
       'Could not find a place with provided User id',
       404
@@ -59,7 +60,9 @@ const getPlacesByUserId = async (request, response, next) => {
     return next(error);
   } else {
     response.json({
-      places: places.map((place) => place.toObject({ getters: true })),
+      places: userWithPlaces.places.map((place) =>
+        place.toObject({ getters: true })
+      ),
     });
   }
 };
