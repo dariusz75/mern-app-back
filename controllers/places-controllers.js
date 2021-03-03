@@ -7,20 +7,6 @@ const getCoordForAddress = require('../util/location');
 const Place = require('../models/place');
 const User = require('../models/user');
 
-let DUMMY_PLACES = [
-  {
-    id: 'p1',
-    title: 'Empire State Building 111',
-    description: 'One of the most famous sky scrappers in the world',
-    location: {
-      lat: 40.7484474,
-      lng: -73.9871516,
-    },
-    address: '20 W 34th St, New York, NY 10001, United States',
-    creator: 'u1',
-  },
-];
-
 const getPlaceById = async (request, response, next) => {
   const placeId = request.params.pid;
   let place;
@@ -42,7 +28,6 @@ const getPlaceById = async (request, response, next) => {
 const getPlacesByUserId = async (request, response, next) => {
   const userId = request.params.uid;
 
-  //let places;
   let userWithPlaces;
 
   try {
