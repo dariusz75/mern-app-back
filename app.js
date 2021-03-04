@@ -5,10 +5,25 @@ const mongoose = require('mongoose');
 const placesRoutes = require('./routes/places-routes');
 const usersRoutes = require('./routes/users-routes');
 const HttpError = require('./models/http-error');
+const { response } = require('express');
 
 const app = express();
 
 app.use(bodyParser.json());
+
+app.use((request, response, next) => {
+  response.setHeader('Access-Control-Allow-Origin', '*');
+  response.setHeader(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+  );
+  response.setHeader(
+    'Access-Control-Allow-Methods',
+    'GET, POST, PATCH, DELETE'
+  );
+
+  next();
+});
 
 app.use('/api/places', placesRoutes);
 app.use('/api/users', usersRoutes);

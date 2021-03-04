@@ -46,7 +46,7 @@ const signup = async (request, response, next) => {
     name,
     email,
     image:
-      'https://avatars.githubusercontent.com/u/12503580?s=400&u=bf93f8321c93cc6ba143903a7c0ee53cdaefb5f7&v=4',
+      'https://avatars.githubusercontent.com/u/12503580?s=400&u=bf93f8321c93cc6ba143903a7c0ee53cdaefb5f7&v=42',
     password,
     places: [],
   });
