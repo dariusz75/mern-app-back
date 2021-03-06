@@ -5,22 +5,18 @@ const mongoose = require('mongoose');
 const placesRoutes = require('./routes/places-routes');
 const usersRoutes = require('./routes/users-routes');
 const HttpError = require('./models/http-error');
-const { response } = require('express');
 
 const app = express();
 
 app.use(bodyParser.json());
 
-app.use((request, response, next) => {
-  response.setHeader('Access-Control-Allow-Origin', '*');
-  response.setHeader(
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
     'Access-Control-Allow-Headers',
     'Origin, X-Requested-With, Content-Type, Accept, Authorization'
   );
-  response.setHeader(
-    'Access-Control-Allow-Methods',
-    'GET, POST, PATCH, DELETE'
-  );
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
 
   next();
 });
@@ -28,35 +24,26 @@ app.use((request, response, next) => {
 app.use('/api/places', placesRoutes);
 app.use('/api/users', usersRoutes);
 
-app.use((request, response, next) => {
+app.use((req, res, next) => {
   const error = new HttpError('Could not find this route.', 404);
-  next(error);
+  throw error;
 });
 
-app.use((error, request, response, next) => {
-  if (response.headerSent) {
-    next(error);
-  } else {
-    response.status(error.code || 500);
-    response.json({ message: error.message || 'An unknown error occurred' });
+app.use((error, req, res, next) => {
+  if (res.headerSent) {
+    return next(error);
   }
+  res.status(error.code || 500);
+  res.json({ message: error.message || 'An unknown error occurred!' });
 });
-
-const connectUrl =
-  'mongodb+srv://Dariusz-Max:kalmar77@cluster0.zguae.mongodb.net/places?retryWrites=true&w=majority';
-
-const connectConfig = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useCreateIndex: true,
-};
 
 mongoose
-  .connect(connectUrl, connectConfig)
+  .connect(
+    'mongodb+srv://dariuszMax2:lE2eTLNqfByFzUEn@cluster0.zguae.mongodb.net/mern?retryWrites=true&w=majority'
+  )
   .then(() => {
-    console.log('Database connected.');
     app.listen(5000);
   })
-  .catch((error) => {
-    console.error('Error connecting to db:', error);
+  .catch((err) => {
+    console.log(err);
   });
